@@ -1,0 +1,50 @@
+{
+    "goldstone": {
+        "aliases": [
+            "gs"
+        ],
+        "tempo_code": "q",
+        "itoa_code": "GS", 
+        "clock_file": "gs2utc.clk",
+        "clock_fmt": "tempo2",
+        "itrf_xyz": [
+            -2353621.22,
+            -4641341.52,
+            3677052.352
+        ],
+        "origin": "Imported from TEMPO2 observatories.dat 2021 June 7."
+    },
+    
+    "robledo": {
+        "aliases": [
+            "ro"
+        ],
+        "tempo_code": "j",
+        "itoa_code": "RO", 
+        "clock_file": "ro2utc.clk",
+        "clock_fmt": "tempo2",
+        "itrf_xyz": [
+            4849093.992,
+            -360191.27,
+            4115107.66
+        ],
+        "origin": "RSW 23 Jan 2024."
+    },
+    
+    "canberra": {
+        "aliases": [
+            "cn"
+        ],
+        "tempo_code": "n",
+        "itoa_code": "CN", 
+        "clock_file": "ro2utc.clk",
+        "clock_fmt": "tempo2",
+        "itrf_xyz": [
+            -4460894.947,
+            2682367.17,
+            -3674745.22
+        ],
+        "origin": "RSW 23 Jan 2024."
+    }
+    
+}
