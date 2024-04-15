@@ -3,6 +3,19 @@
 These scripts let you generate TOAs from archive files 
 and then fit the TOAs to a model using PINT.
 
+## Requirements
+
+You will need to install `PINT`.  If you want to use data 
+from the DSN telescopes, you will also need to include the 
+relevant clock files and an observatory file.  These are 
+included here in the `clock` and `obs` folders.  However, 
+you will need to tell `PINT` where to find them by adding the 
+following environment variables:
+
+     export PINT_CLOCK_OVERRIDE=/path/to/timing_pipeline/clock
+     export PINT_OBS_OVERRIDE=/path/to/timing_pipeline/obs/dsn_obs.json 
+
+
 ## Generating TOAs
 
 The script `toa_reduce.py` takes in archive files and a 
