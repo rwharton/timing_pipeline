@@ -27,16 +27,16 @@ def make_plot(ar_file, uflo=None, ufhi=None, shade_pulse=False,
     # get data
     arch = psrchive.Archive_load(ar_file)
     #arch.bscrunch_to_nbin(1024)
-    print(arch.get_nbin())
-    print("Dedispersing...")
+    #print(arch.get_nbin())
+    print("  Dedispersing...")
     arch.dedisperse()
-    print("Scrunching subints...")
+    print("  Scrunching subints...")
     arch.tscrunch()
-    print("Removing baseline...")
+    print("  Removing baseline...")
     arch.remove_baseline()
-    print("Centering...")
+    print("  Centering...")
     arch.centre_max_bin()
-    print("Getting data...")
+    print("  Getting data...")
     data = arch.get_data()
     freqs = arch.get_frequencies()
 
@@ -44,7 +44,7 @@ def make_plot(ar_file, uflo=None, ufhi=None, shade_pulse=False,
     freq_hi = arch.get_centre_frequency() + arch.get_bandwidth()/2.0
 
     # set up figure
-    print("Making plot...")
+    print("  Making plot...")
     fig = plt.figure(constrained_layout=True)
     gs = GridSpec(3, 3, figure=fig)
 

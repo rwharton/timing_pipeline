@@ -53,7 +53,7 @@ def make_prefit_plot(t, m):
     plt.grid(alpha=0.75)
     plt.legend()
     plt.show()
-    return rs
+    return
 
 def make_postfit_plot(t, f, m):
     """
@@ -140,13 +140,53 @@ def auto_zap_toas(toas, m, nsig=6):
     return toas[xxc]
         
         
+##########################
+###  EXAMPLE WORKFLOW  ###
+##########################
 
 #"""
+# Set initial parfile and input tim file
 parfile = 'par/B1937_tdb_nanoPX.par'
 timfile = 'b1937_09apr24.tim'
-"""
+
+# Get parfile model and (sorted) TOAs
 m, t_all = get_model_and_toas(parfile, timfile)
 xx_srt = np.argsort(t_all.get_mjds())
 t_all = t_all[xx_srt]
 t_all.print_summary()
-"""
+
+# Make a plot of pre-fit residuals that use 
+# only the input par file model
+make_prefit_plot(t_all, m)
+
+# If nec, can zap outliers.  These are calc'd
+# as deviating by more than `nsig` std devs from 
+# model.  Want to make this big in case model isnt 
+# great.
+t_zap = auto_zap_toas(t_all, m, nsig=10)
+
+# Remake teh prefit plot to see how that changed things
+make_prefit_plot(t_zap, m)
+
+# Now we can fit for a new model, excluding TOAs 
+# with uncertainties above 2 us
+t, f = fit_model(m, t_zap, max_err_us=2)
+
+# And make a plot of the post-fit residuals to 
+# the new model
+make_postfit_plot(t, f, m)
+
+# If you still see some bad outliers, can zap again.
+pt_zap = auto_zap_toas(f.toas, f.model, nsig=7)
+
+# We will need to re-fit so lets look at prefit
+make_prefit_plot(pt_zap, m)
+
+# Fit model again
+t2, f2 = fit_model(m, pt_zap, max_err_us=2)
+
+# Make postfit residuals for new model.  
+make_postfit_plot(t2, f2, m)
+
+# If neccessary, repeat the zapping and fitting cycle
+#"""

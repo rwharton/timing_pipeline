@@ -4,6 +4,7 @@ import plot_ar
 import time
 import glob
 import os
+from argparse import ArgumentParser
 
 
 def make_dspec_plot(ar_file, plot_dir):
@@ -119,9 +120,6 @@ def get_toas_from_list(ar_list, tmp_ar, tsub=-1, nmin=1,
     data and put them in plot_dir.  The file name will be 
     based on the archive name
     """ 
-    # Start timer 
-    tt_start = time.time()
-
     # Make template object
     tmp = psr.Archive_load(tmp_ar)    
     tmp.pscrunch()
@@ -141,9 +139,6 @@ def get_toas_from_list(ar_list, tmp_ar, tsub=-1, nmin=1,
         toas_list += list(toas)
         del obs
     
-    dt = time.time() - tt_start
-    print("... Took %.1f sec" %(dt))
-
     return toas_list
 
 
@@ -169,4 +164,74 @@ def write_tim_file(toas_list, outfile, offset="+1.0"):
 
     return
 
-    
+
+def parse_input():
+    """
+    Use argparse to parse input
+    """
+    prog_desc = "Reduce archives and generate TOAs"
+    parser = ArgumentParser(description=prog_desc)
+
+    parser.add_argument('ar_files', nargs="*", 
+                        help='Input archive files (or glob str)')
+    parser.add_argument('-temp', '--template', 
+                        help='Template file for timing', 
+                        required=True)
+    parser.add_argument('-o', '--outbase',
+                        help='Output tim file basename (no suffix)',
+                        required=True)
+    parser.add_argument('-pdir', '--plot_dir',
+                        help='Plot directory (ignore if no plots)',
+                        required=False, default=None)
+    parser.add_argument('-tsub', '--t_subint',
+                        help='Subint duration (s)',
+                        required=False, type=float)
+    parser.add_argument('-nsub', '--n_subint',
+                        help='Minimum number of subints per obs (def=1)',
+                        default=1, required=False, type=int)
+
+    args = parser.parse_args()
+
+    fnames = args.ar_files
+    temp = args.template
+    pdir = args.plot_dir
+    tsub = args.t_subint
+    nsub = args.n_subint 
+    outbase = args.outbase
+
+    return fnames, temp, pdir, tsub, nsub, outbase
+
+
+debug = 0
+if __name__ == "__main__":
+    if not debug:
+        tstart = time.time()
+        
+        fnames, temp, pdir, tsub, nsub, outbase = parse_input()
+        if pdir is None:
+            make_plots = False
+        else:
+            make_plots = True
+
+        if tsub is None:
+            tsub = -1
+
+        if len(fnames) == 0:
+            print("No archive files found!")
+            sys.exit(0)
+        else: pass
+        
+        toas_list = get_toas_from_list(fnames, temp, tsub=tsub, 
+                            nmin=nsub, make_plots=make_plots, 
+                            plot_dir=pdir)
+
+        outfile = '%s.tim' %outbase
+        write_tim_file(toas_list, outfile, offset="+1.0")
+
+        tstop = time.time()
+        dt = tstop - tstart
+        print("Took %.2f minutes" %(dt/60.0))
+        
+    else:
+        pass
+
