@@ -38,3 +38,76 @@ The result of this script will be plots for each obs (it will skip them
 if they already exist) and a TOA file `[outbase].tim`.
 
 ## Fitting a Model
+
+Once we have a tim file, we can go about fitting a model to the data.
+We will use PINT in the `pint_timing.py` script.  This is probably 
+best done interactively, so below is an example.
+
+First we define our initial par file and the input tim file:
+
+     parfile = 'par/B1937_tdb_nanoPX.par'
+     timfile = 'b1937_09apr24.tim'
+
+Next, we read in these two file and make a model and a 
+list of TOAs.  Because they might not be in order, we also 
+time sort them.
+
+     m, t_all = get_model_and_toas(parfile, timfile)
+     xx_srt = np.argsort(t_all.get_mjds())
+     t_all = t_all[xx_srt]
+     t_all.print_summary()
+
+Now we make a plot of the TOA residuals for the initial 
+model.  This will allow us to see how well the model fits 
+and also a chance to examine the data for outliers.
+
+     make_prefit_plot(t_all, m)
+
+If neccessary, we can zap outliers.  There is a very simple 
+convenience function in the script that removes TOAs that are 
+more than `nsig` standard deviations from the model.  We don't 
+want to be too aggressive here because the model may not be very 
+good and the residuals could have a linear slope over time.
+
+     t_zap = auto_zap_toas(t_all, m, nsig=10)
+
+After zapping, we can make another plot to see how well it worked.
+
+     make_prefit_plot(t_zap, m)
+
+If that looks good enough to fit, then we can fit a timing model 
+to our TOAs.  By default we will just fit for `F0` and `F1` (ie, 
+the spin frequency and spin frequency derivative).  We can also set 
+a maximum TOA uncertainty so that any TOAs with error bars larger than 
+this will be excluded.
+
+     t, f = fit_model(m, t_zap, max_err_us=2)
+
+OK, now that we have a model, we can fit the residuals to this 
+new model
+
+     make_postfit_plot(t, f, m)
+
+If the data look good, you can stop there.  Otherwise, it may be useful 
+to do another round of zapping.  Now that we have a better model of the 
+data, the zapping can be at a bit lower level.
+
+     pt_zap = auto_zap_toas(f.toas, f.model, nsig=7)
+
+Now we need to start over with these new TOAs.  First, we can 
+plot the pre-fit residuals to make sure we haven't done anything 
+too extreme:
+
+     make_prefit_plot(pt_zap, m)
+
+If that looks ok, then we re-fit the data:
+
+     t2, f2 = fit_model(m, pt_zap, max_err_us=2)
+
+and plot the post-fit residuals again:
+
+     make_postfit_plot(t2, f2, m)
+
+If that looks good, then we are good to go.  Otherwise, we should 
+repeat the zapping and fitting cycle.
+
